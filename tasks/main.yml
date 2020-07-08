@@ -1,0 +1,27 @@
+---
+- name: Set a fact about the Ansible python interpreter
+  set_fact:
+    old_ansible_python_interpreter: "{{ ansible_python_interpreter | default('/usr/bin/python') }}"
+
+- name: Set a fact to ensure Ansible uses the python interpreter in the virtualenv
+  set_fact:
+    ansible_python_interpreter: "{{ os_host_aggregates_venv }}/bin/python"
+
+- name: Ensure nova host aggregates exist
+  os_nova_host_aggregate:
+    auth_type: "{{ os_host_aggregates_auth_type }}"
+    auth: "{{ os_host_aggregates_auth }}"
+    cacert: "{{ os_host_aggregates_cacert | default(omit) }}"
+    interface: "{{ os_host_aggregates_interface | default(omit, true) }}"
+    name: "{{ item.name }}"
+    availability_zone: "{{ item.availability_zone | default(omit) }}"
+    hosts: "{{ item.hosts | default(omit) }}"
+    metadata: "{{ item.metadata | default(omit) }}"
+    state: present
+  with_items: "{{ os_host_aggregates }}"
+
+# This variable is unset before we set it, and it does not appear to be
+# possible to unset a variable in Ansible.
+- name: Set a fact to reset the Ansible python interpreter
+  set_fact:
+    ansible_python_interpreter: "{{ old_ansible_python_interpreter }}"
