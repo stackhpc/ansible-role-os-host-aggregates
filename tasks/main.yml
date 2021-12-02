@@ -17,7 +17,7 @@
     availability_zone: "{{ item.availability_zone | default(omit) }}"
     hosts: "{{ item.hosts | default(omit) }}"
     metadata: "{{ item.metadata | default(omit) }}"
-    state: present
+    state: "{{ item.state | default('present') }}"
   with_items: "{{ os_host_aggregates }}"
 
 # This variable is unset before we set it, and it does not appear to be
